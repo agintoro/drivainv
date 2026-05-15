@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#071a2f" />
+  <title>Driva Invoice OS</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div id="splash" class="splash" aria-hidden="true">
+    <div class="splash-card">
+      <div class="splash-mark">DRIVA</div>
+      <p>Tracing Coffee To Its Soul</p>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand-kicker">Personal Invoice App</div>
+        <h1>Driva Invoice OS</h1>
+        <p>Clean invoices for coffee lots, green beans, and serious bean arithmetic.</p>
+      </div>
+      <nav class="nav-list" aria-label="Main navigation">
+        <button class="nav-btn active" data-tab="invoice">Invoice</button>
+        <button class="nav-btn" data-tab="items">Items</button>
+        <button class="nav-btn" data-tab="customers">Customers</button>
+        <button class="nav-btn" data-tab="terms">Terms</button>
+        <button class="nav-btn" data-tab="history">History</button>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">Driva Coffee Company</span>
+          <h2 id="screenTitle">New Invoice</h2>
+        </div>
+        <button id="resetBtn" class="ghost-btn" type="button">Reset</button>
+      </header>
+
+      <section class="tab-panel active" id="tab-invoice">
+        <div class="grid two">
+          <div class="card">
+            <h3>Invoice Details</h3>
+            <div class="field-row">
+              <label>Invoice No.<input id="invoiceNo" type="text" /></label>
+              <label>Date<input id="invoiceDate" type="date" /></label>
+            </div>
+            <div class="field-row">
+              <label>Currency
+                <select id="currency">
+                  <option value="IDR">IDR - Rp</option>
+                  <option value="USD">USD - $</option>
+                </select>
+              </label>
+              <label>Due Date<input id="dueDate" type="date" /></label>
+            </div>
+            <label>Customer
+              <select id="customerSelect"></select>
+            </label>
+          </div>
+
+          <div class="card">
+            <h3>Discount & Terms</h3>
+            <div class="field-row">
+              <label>Discount Type
+                <select id="discountType">
+                  <option value="none">No discount</option>
+                  <option value="percent">Percentage (%)</option>
+                  <option value="fixed">Fixed amount</option>
+                </select>
+              </label>
+              <label>Discount Value<input id="discountValue" inputmode="decimal" type="number" min="0" value="0" /></label>
+            </div>
+            <label>Terms & Condition
+              <select id="termsSelect"></select>
+            </label>
+            <textarea id="termsText" rows="4" placeholder="Terms will appear here"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Invoice Items</h3>
+            <button id="addInvoiceLineBtn" class="primary-btn" type="button">Add Line</button>
+          </div>
+          <div id="invoiceLines" class="invoice-lines"></div>
+          <div class="totals-box">
+            <div><span>Subtotal</span><strong id="subtotalText">Rp0</strong></div>
+            <div><span>Discount</span><strong id="discountText">Rp0</strong></div>
+            <div class="grand"><span>Total</span><strong id="totalText">Rp0</strong></div>
+          </div>
+          <div class="action-row">
+            <button id="saveInvoiceBtn" class="secondary-btn" type="button">Save Invoice</button>
+            <button id="generatePdfBtn" class="primary-btn" type="button">Generate PDF</button>
+          </div>
+          <p id="pdfStatus" class="status-line" role="status"></p>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-items">
+        <div class="card">
+          <h3>Item Library</h3>
+          <div class="field-row three">
+            <label>Item Name<input id="itemName" type="text" placeholder="Indragiri Mossto Natural" /></label>
+            <label>Price<input id="itemPrice" inputmode="decimal" type="number" min="0" placeholder="65000" /></label>
+            <label>Unit<input id="itemUnit" type="text" placeholder="kg / 100g" /></label>
+          </div>
+          <button id="saveItemBtn" class="primary-btn" type="button">Add / Update Item</button>
+          <div id="itemList" class="library-list"></div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-customers">
+        <div class="card">
+          <h3>Customer Library</h3>
+          <div class="field-row">
+            <label>Customer Name<input id="customerName" type="text" placeholder="Buyer name" /></label>
+            <label>Email<input id="customerEmail" type="email" placeholder="buyer@email.com" /></label>
+          </div>
+          <label>Address<textarea id="customerAddress" rows="3" placeholder="City, country, full billing address"></textarea></label>
+          <button id="saveCustomerBtn" class="primary-btn" type="button">Add / Update Customer</button>
+          <div id="customerList" class="library-list"></div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-terms">
+        <div class="card">
+          <h3>Terms Library</h3>
+          <label>Terms Title<input id="termsTitle" type="text" placeholder="Standard Payment Terms" /></label>
+          <label>Terms Content<textarea id="termsContent" rows="5" placeholder="Payment terms, delivery notes, DP policy, etc."></textarea></label>
+          <button id="saveTermsBtn" class="primary-btn" type="button">Add / Update Terms</button>
+          <div id="termsList" class="library-list"></div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-history">
+        <div class="card">
+          <h3>Invoice History</h3>
+          <div id="historyList" class="library-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-tabs" aria-label="Mobile navigation">
+    <button class="nav-btn active" data-tab="invoice">Invoice</button>
+    <button class="nav-btn" data-tab="items">Items</button>
+    <button class="nav-btn" data-tab="customers">Customers</button>
+    <button class="nav-btn" data-tab="terms">Terms</button>
+    <button class="nav-btn" data-tab="history">History</button>
+  </nav>
+</body>
+</html>
